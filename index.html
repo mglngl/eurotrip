@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Eurotrip 2026 · 12-Day Planner</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f6f1e7;
+    --cream-2: #efe7d6;
+    --cream-3: #e6dcc6;
+    --ink: #0e1f3a;
+    --ink-2: #1b2e4f;
+    --terracotta: #c2542b;
+    --terracotta-soft: #e08a5f;
+    --mute: #6b6452;
+  }
+  html, body { background: var(--cream); color: var(--ink); }
+  body { font-family: 'Inter', system-ui, sans-serif; }
+  .font-display { font-family: 'Fraunces', Georgia, serif; font-optical-sizing: auto; }
+  .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+  .text-ink { color: var(--ink); }
+  .text-ink-2 { color: var(--ink-2); }
+  .text-mute { color: var(--mute); }
+  .text-terracotta { color: var(--terracotta); }
+  .text-cream { color: var(--cream); }
+  .text-cream\/60 { color: rgba(246,241,231,0.6); }
+  .text-cream\/80 { color: rgba(246,241,231,0.8); }
+  .bg-cream { background: var(--cream); }
+  .bg-cream-2 { background: var(--cream-2); }
+  .bg-cream-3 { background: var(--cream-3); }
+  .bg-ink { background: var(--ink); }
+  .bg-terracotta { background: var(--terracotta); }
+  .border-ink { border-color: var(--ink); }
+  .border-cream-3 { border-color: var(--cream-3); }
+  .border-terracotta { border-color: var(--terracotta); }
+
+  /* subtle paper texture */
+  .paper {
+    background-image:
+      radial-gradient(rgba(14,31,58,0.025) 1px, transparent 1px),
+      radial-gradient(rgba(14,31,58,0.02) 1px, transparent 1px);
+    background-size: 18px 18px, 9px 9px;
+    background-position: 0 0, 4px 4px;
+  }
+
+  .ticker-dash {
+    background-image: linear-gradient(90deg, currentColor 50%, transparent 50%);
+    background-size: 8px 1px;
+    background-repeat: repeat-x;
+    background-position: 0 50%;
+  }
+
+  .day-pill {
+    transition: all 220ms cubic-bezier(.2,.7,.2,1);
+  }
+
+  .fade-key { animation: fadeKey 360ms cubic-bezier(.2,.7,.2,1); }
+  @keyframes fadeKey {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .slide-in { animation: slideIn 420ms cubic-bezier(.2,.7,.2,1); }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .scaleup { animation: scaleup 480ms cubic-bezier(.2,.7,.2,1); }
+  @keyframes scaleup {
+    from { opacity: 0; transform: scale(.96); }
+    to { opacity: 1; transform: scale(1); }
+  }
+
+  .progress-shimmer {
+    background: linear-gradient(90deg, var(--terracotta) 0%, var(--terracotta-soft) 50%, var(--terracotta) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 6s linear infinite;
+  }
+  @keyframes shimmer { 0% { background-position: 0% 0; } 100% { background-position: -200% 0; } }
+
+  .scroll-thin::-webkit-scrollbar { width: 6px; }
+  .scroll-thin::-webkit-scrollbar-thumb { background: rgba(14,31,58,0.2); border-radius: 6px; }
+  .scroll-thin::-webkit-scrollbar-track { background: transparent; }
+
+  /* divider with dots */
+  .dotline {
+    background-image: radial-gradient(circle, currentColor 1px, transparent 1.2px);
+    background-size: 8px 8px;
+    background-repeat: repeat-x;
+    background-position: 0 50%;
+    height: 8px;
+  }
+
+  @media (max-width: 900px) {
+    .desktop-only { display: none !important; }
+  }
+  @media (min-width: 901px) {
+    .mobile-only { display: none !important; }
+  }
+</style>
+</head>
+<body class="min-h-screen">
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" data-presets="env,react">
+const { useState, useEffect, useMemo, useRef } = React;
+
+/* =========================================================================
+   TRIP DATA
+   ========================================================================= */
+const TRIP = [
+  {
+    day: 1,
+    city: "San Diego",
+    cities: ["San Diego"],
+    country: "USA",
+    countryCode: "US",
+    dateLabel: "Jun 04 · Thu",
+    glyph: "🌴",
+    palette: ["#E8B86E", "#C2542B", "#0E1F3a"],
+    summary: "Pack the bags, double-check passports, and grab in-n-out before the long-haul. Departure from SAN to AMS — overnight flight, sleep on the plane.",
+    highlights: [
+      "Final espresso at Communal Coffee, North Park",
+      "Sunset walk at Sunset Cliffs",
+      "9:45 PM departure, KLM 0682 → Amsterdam"
+    ],
+    transit: { mode: "Flight", line: "KLM · SAN → AMS", duration: "10h 55m", overnight: true },
+    isCombo: false,
+    legKm: 0,
+  },
+  {
+    day: 2,
+    city: "Amsterdam",
+    cities: ["Amsterdam"],
+    country: "Netherlands",
+    countryCode: "NL",
+    dateLabel: "Jun 06 · Sat",
+    glyph: "🚲",
+    palette: ["#D8E4D0", "#0E1F3a", "#C2542B"],
+    summary: "Land bleary-eyed at Schiphol, drop bags at the canal-house Airbnb in Jordaan, and shake off the jetlag with a slow bike loop. Stroopwafels, canals, repeat.",
+    highlights: [
+      "Bike the Jordaan + Prinsengracht loop",
+      "Foodhallen for dinner — bitterballen & natural wine",
+      "Late-night canal walk, no map"
+    ],
+    transit: { mode: "Train", line: "Thalys · AMS → BRU", duration: "1h 52m" },
+    isCombo: false,
+    legKm: 9100,
+  },
+  {
+    day: 3,
+    city: "Bruges + Brussels",
+    cities: ["Bruges", "Brussels"],
+    country: "Belgium",
+    countryCode: "BE",
+    dateLabel: "Jun 07 · Sun",
+    glyph: "🍫",
+    palette: ["#E8DCC0", "#7B3F2A", "#0E1F3a"],
+    summary: "A combo day in Belgium — morning in fairytale Bruges, afternoon train to Brussels for waffles, beer, and the EU quarter. Sleep in Brussels.",
+    highlights: [
+      "Bruges: Markt square + canal boat at sunrise",
+      "IC train to Brussels (1h)",
+      "Délirium Café flight + Grand-Place by night"
+    ],
+    transit: { mode: "Eurostar", line: "BRU → LON St Pancras", duration: "2h 01m" },
+    isCombo: true,
+    legKm: 220,
+    combo: [
+      { name: "Bruges", glyph: "🏰", note: "Morning · canals, chocolate, Markt" },
+      { name: "Brussels", glyph: "🧇", note: "Afternoon · Grand-Place, beer, frites" }
+    ]
+  },
+  {
+    day: 4,
+    city: "London",
+    cities: ["London"],
+    country: "United Kingdom",
+    countryCode: "UK",
+    dateLabel: "Jun 08 · Mon",
+    glyph: "🚇",
+    palette: ["#DCE0E8", "#0E1F3a", "#C2542B"],
+    summary: "Eurostar arrives at St Pancras mid-morning. Two nights in Shoreditch. Pub lunch, a museum, and a long walk along the South Bank as the city lights flick on.",
+    highlights: [
+      "Tate Modern → Borough Market crawl",
+      "West End show (TKTS booth, day-of)",
+      "Pint at a 400-year-old pub in Hampstead"
+    ],
+    transit: { mode: "Flight", line: "BA · LHR → CDG", duration: "1h 20m" },
+    isCombo: false,
+    legKm: 320,
+  },
+  {
+    day: 5,
+    city: "Paris",
+    cities: ["Paris"],
+    country: "France",
+    countryCode: "FR",
+    dateLabel: "Jun 09 · Tue",
+    glyph: "🥐",
+    palette: ["#F0E2C8", "#0E1F3a", "#C2542B"],
+    summary: "Land at CDG, RER B into the city. Hotel in Le Marais. Three days of museums, pastries, and aimless wandering — the only acceptable Paris itinerary.",
+    highlights: [
+      "Musée d'Orsay (skip the Louvre queue)",
+      "Picnic on the Seine at Pont des Arts",
+      "Pastry crawl: Du Pain et des Idées → Cédric Grolet"
+    ],
+    transit: { mode: "Train", line: "TGV Lyria · PAR → ZRH", duration: "4h 03m" },
+    isCombo: false,
+    legKm: 350,
+  },
+  {
+    day: 6,
+    city: "Zürich",
+    cities: ["Zürich"],
+    country: "Switzerland",
+    countryCode: "CH",
+    dateLabel: "Jun 10 · Wed",
+    glyph: "🏔️",
+    palette: ["#D8E0DC", "#0E1F3a", "#C2542B"],
+    summary: "TGV climbs into the Alps and drops you in Zürich by lunch. One night only — a quick reset between Paris and Italy. Old Town, lake swim, fondue.",
+    highlights: [
+      "Swim in the Limmat at Frauenbad",
+      "Fondue at Swiss Chuchi",
+      "Sunset at Lindenhof terrace"
+    ],
+    transit: { mode: "Train", line: "EC · ZRH → MIL", duration: "3h 28m" },
+    isCombo: false,
+    legKm: 490,
+  },
+  {
+    day: 7,
+    city: "Zürich → Milan",
+    cities: ["Zürich", "Milan"],
+    country: "CH → IT",
+    countryCode: "CH",
+    dateLabel: "Jun 11 · Thu",
+    glyph: "🚆",
+    palette: ["#E0D8C8", "#0E1F3a", "#C2542B"],
+    summary: "A travel-light day. Morning EuroCity through the Gotthard, afternoon arrival in Milano Centrale. Aperitivo at golden hour, then early to bed before the combo day.",
+    highlights: [
+      "Window seat through the Alps (sit on the right)",
+      "Duomo rooftop at sunset",
+      "Aperitivo at Bar Basso — the original Negroni Sbagliato"
+    ],
+    transit: { mode: "Day trip", line: "Milan ↔ Venice (next day)", duration: "2h 25m each way" },
+    isCombo: false,
+    legKm: 290,
+  },
+  {
+    day: 8,
+    city: "Milan + Venice",
+    cities: ["Milan", "Venice"],
+    country: "Italy",
+    countryCode: "IT",
+    dateLabel: "Jun 12 · Fri",
+    glyph: "🛶",
+    palette: ["#E8DCC8", "#0E1F3a", "#C2542B"],
+    summary: "Combo day. Early Frecciarossa to Venice — a full day of getting lost in alleys and on water buses. Late train back to Milan to sleep.",
+    highlights: [
+      "Vaporetto down the Grand Canal at 7am",
+      "Cicchetti crawl in Cannaregio",
+      "Last train back to Milan, 21:35"
+    ],
+    transit: { mode: "Train", line: "Frecciarossa · MIL → FLR", duration: "1h 50m" },
+    isCombo: true,
+    legKm: 270,
+    combo: [
+      { name: "Milan", glyph: "🏛️", note: "Base · Duomo, aperitivo, sleep" },
+      { name: "Venice", glyph: "🛶", note: "Day trip · canals, cicchetti, gondola" }
+    ]
+  },
+  {
+    day: 9,
+    city: "Florence",
+    cities: ["Florence"],
+    country: "Italy",
+    countryCode: "IT",
+    dateLabel: "Jun 13 · Sat",
+    glyph: "🎨",
+    palette: ["#EBC9A0", "#7B3F2A", "#0E1F3a"],
+    summary: "Frecciarossa to Firenze SMN. Two nights in Oltrarno. A Renaissance-saturated day — the David, the Duomo climb, and a bistecca that ruins all future steaks.",
+    highlights: [
+      "Accademia at 8:15am (book ahead)",
+      "Climb the Duomo cupola",
+      "Bistecca alla Fiorentina at Trattoria Mario"
+    ],
+    transit: { mode: "Train", line: "Frecciarossa · FLR → ROM", duration: "1h 32m" },
+    isCombo: false,
+    legKm: 250,
+  },
+  {
+    day: 10,
+    city: "Rome",
+    cities: ["Rome"],
+    country: "Italy",
+    countryCode: "IT",
+    dateLabel: "Jun 14 · Sun",
+    glyph: "🏛️",
+    palette: ["#E8C896", "#7B3F2A", "#0E1F3a"],
+    summary: "The eternal city. Hotel in Monti, walking distance to everything. Two nights — one for the ruins, one for the food. Skip the line tickets booked.",
+    highlights: [
+      "Colosseum + Forum combo at golden hour",
+      "Cacio e pepe at Felice a Testaccio",
+      "Trastevere bar crawl, end at Freni e Frizioni"
+    ],
+    transit: { mode: "Flight", line: "Aegean · FCO → JTR", duration: "2h 50m" },
+    isCombo: false,
+    legKm: 230,
+  },
+  {
+    day: 11,
+    city: "Fira, Santorini",
+    cities: ["Fira"],
+    country: "Greece",
+    countryCode: "GR",
+    dateLabel: "Jun 15 · Mon",
+    glyph: "🌅",
+    palette: ["#DEE8EE", "#0E1F3a", "#C2542B"],
+    summary: "Land at JTR, transfer to Fira. Cliffside hotel with a caldera view. Two days to do absolutely nothing except watch the sun fall into the Aegean.",
+    highlights: [
+      "Hike the Fira → Oia caldera path (10km)",
+      "Sunset at Santo Wines, Pyrgos",
+      "Black-sand swim at Perissa"
+    ],
+    transit: { mode: "Rest", line: "Recovery day · no transit", duration: "—" },
+    isCombo: false,
+    legKm: 1880,
+  },
+  {
+    day: 12,
+    city: "Fira → Home",
+    cities: ["Fira", "San Diego"],
+    country: "GR → USA",
+    countryCode: "GR",
+    dateLabel: "Jun 16 · Tue",
+    glyph: "✈️",
+    palette: ["#DEE8EE", "#0E1F3a", "#C2542B"],
+    summary: "One last Greek breakfast on the cliff. JTR → ATH → LAX → SAN. The long way home. Twelve days, ten cities, six countries — back in time for Father's Day.",
+    highlights: [
+      "Final loukoumades at Lucky's",
+      "Buy olive oil at the airport (don't forget)",
+      "Wheels down SAN, 22:15 local"
+    ],
+    transit: { mode: "Flight", line: "JTR → ATH → LAX → SAN", duration: "22h door-to-door" },
+    isCombo: false,
+    legKm: 11200,
+  },
+];
+
+const STATS = (() => {
+  const countries = new Set(TRIP.map(d => d.countryCode)).size;
+  const cities = new Set(TRIP.flatMap(d => d.cities)).size;
+  const transitDays = TRIP.filter(d => d.legKm > 0).length;
+  const totalKm = TRIP.reduce((s, d) => s + d.legKm, 0);
+  return { countries, cities, transitDays, totalKm };
+})();
+
+/* =========================================================================
+   ICONOGRAPHY — flat geometric SVG city glyphs (no stock photos)
+   ========================================================================= */
+function CityIllustration({ day }) {
+  const [bg, ink, accent] = day.palette;
+  const common = { width: "100%", height: "100%", viewBox: "0 0 320 220", preserveAspectRatio: "xMidYMid slice" };
+
+  // pick a scene by city
+  const key = day.cities[0];
+
+  const scenes = {
+    "San Diego": (
+      <svg {...common}>
+        <rect width="320" height="220" fill={bg} />
+        <circle cx="260" cy="58" r="26" fill={accent} opacity="0.85" />
+        <path d="M0,160 Q80,140 160,160 T320,160 L320,220 L0,220 Z" fill={ink} opacity="0.9"/>
+        <path d="M0,175 Q80,158 160,175 T320,175 L320,220 L0,220 Z" fill={ink}/>
+        {/* palms */}
+        <g stroke={ink} strokeWidth="3" fill="none">
+          <path d="M40,200 Q42,160 44,130" />
+          <path d="M44,130 Q30,118 18,124" />
+          <path d="M44,130 Q60,116 74,124" />
+          <path d="M44,130 Q40,108 50,98" />
+          <path d="M44,130 Q52,112 66,108" />
+        </g>
+        <g stroke={ink} strokeWidth="3" fill="none">
+          <path d="M280,200 Q282,162 284,134" />
+          <path d="M284,134 Q270,122 258,128" />
+          <path d="M284,134 Q300,120 312,128" />
+          <path d="M284,134 Q280,112 290,102" />
+        </g>
+      </svg>
+    ),
+    "Amsterdam": (
+      <svg {...common}>
+        <rect width="320" height="220" fill={bg} />
+        {/* canal */}
+        <rect x="0" y="160" width="320" height="60" fill={ink} opacity="0.18" />
+        <path d="M0,160 L320,160" stroke={ink} strokeWidth="1" opacity="0.4"/>
+        {/* canal houses */}
+        {[...Array(7)].map((_, i) => {
+          const x = 10 + i * 44;
+          const h = 70 + (i%3)*14;
+          return (
+            <g key={i}>
+              <rect x={x} y={160-h} width="38" height={h} fill={ink} opacity={0.85 - i*0.05}/>
+              <polygon points={`${x},${160-h} ${x+19},${160-h-18} ${x+38},${160-h}`} fill={ink}/>
+              <rect x={x+8} y={160-h+12} width="6" height="10" fill={bg}/>
+              <rect x={x+22} y={160-h+12} width="6" height="10" fill={bg}/>
+              <rect x={x+8} y={160-h+30} width="6" height="10" fill={bg}/>
+              <rect x={x+22} y={160-h+30} width="6" height="10" fill={bg}/>
+            </g>
+          );
+        })}
+        {/* bicycle */}
+        <g stroke={accent} strokeWidth="3" fill="none">
+          <circle cx="80" cy="190" r="10"/>
+          <circle cx="120" cy="190" r="10"/>
+          <path d="M80,190 L100,170 L120,190 M100,170 L108,170"/>
+        </g>
+      </svg>
+    ),
+    "Bruges": (
+      <svg {...common}>
+        <rect width="320" height="220" fill={bg} />
+        <rect x="0" y="170" width="320" height="50" fill={ink} opacity="0.18"/>
+        {/* belfry */}
+        <rect x="140" y="50" width="44" height="120" fill={ink}/>
+        <polygon points="140,50 162,28 184,50" fill={ink}/>
+        <rect x="150" y="70" width="8" height="14" fill={bg}/>
+        <rect x="166" y="70" width="8" height="14" fill={bg}/>
+        <rect x="150" y="100" width="8" height="14" fill={bg}/>
+        <rect x="166" y="100" width="8" height="14" fill={bg}/>
+        {/* gabled houses */}
+        {[40, 80, 220, 260].map((x, i) => (
+          <g key={i}>
+            <rect x={x} y="100" width="36" height="70" fill={ink} opacity="0.8"/>
+            <polygon points={`${x},100 ${x+18},80 ${x+36},100`} fill={ink}/>
+          </g>
+        ))}
+      </svg>
+    ),
+    "London": (
+      <svg {...common}>
+        <rect width="320" height="220" fill={bg}/>
+        <circle cx="60" cy="60" r="20" fill={accent} opacity="0.7"/>
+        {/* big ben */}
+        <rect x="200" y="60" width="24" height="110" fill={ink}/>
+        <polygon points="200,60 212,40 224,60" fill={ink}/>
+        <rect x="202" y="80" width="20" height="20" fill={bg}/>
+        <line x1="212" y1="90" x2="212" y2="84" stroke={ink} strokeWidth="2"/>
+        <line x1="212" y1="90" x2="217" y2="90" stroke={ink} strokeWidth="2"/>
+        {/* eye */}
+        <circle cx="100" cy="120" r="50" stroke={ink} strokeWidth="3" fill="none"/>
+        <circle cx="100" cy="120" r="4" fill={ink}/>
+        {[0,30,60,90,120,150,180,210,240,270,300,330].map(a => {
+          const r = 50;
+          const x1 = 100 + Math.cos(a*Math.PI/180)*r;
+          const y1 = 120 + Math.sin(a*Math.PI/180)*r;
+          return <circle key={a} cx={x1} cy={y1} r="3" fill={ink}/>;
+        })}
+        <rect x="0" y="170" width="320" height="50" fill={ink} opacity="0.15"/>
+      </svg>
+    ),
+    "Paris": (
+      <svg {...common}>
+        <rect width="320" height="220" fill={bg}/>
+        <circle cx="50" cy="50" r="20" fill={accent} opacity="0.6"/>
+        {/* eiffel */}
+        <g stroke={ink} strokeWidth="2.5" fill="none">
+          <path d="M160,30 L130,180 M160,30 L190,180"/>
+          <path d="M140,100 L180,100"/>
+          <path d="M134,140 L186,140"/>
+          <path d="M128,180 L192,180"/>
+          <path d="M145,60 L175,60"/>
+          <path d="M155,40 Q160,35 165,40"/>
+        </g>
+        {/* arc detail */}
+        <rect x="40" y="140" width="40" height="40" fill={ink} opacity="0.85"/>
+        <rect x="50" y="155" width="20" height="25" fill={bg}/>
+        <rect x="240" y="130" width="50" height="50" fill={ink} opacity="0.85"/>
+        <rect x="252" y="148" width="26" height="32" fill={bg}/>
+        <rect x="0" y="180" width="320" height="40" fill={ink} opacity="0.15"/>
+      </svg>
+    ),
+    "Zürich": (
+      <svg {...common}>
+        <rect width="320" height="220" fill={bg}/>
+        {/* mountains */}
+        <polygon points="0,140 60,60 100,110 150,40 220,120 280,70 320,130 320,220 0,220" fill={ink} opacity="0.85"/>
+        <polygon points="60,60 76,76 92,60 100,110 60,80" fill={bg} opacity="0.6"/>
+        <polygon points="150,40 168,58 186,40 200,80 150,70" fill={bg} opacity="0.6"/>
+        {/* lake */}
+        <rect x="0" y="160" width="320" height="60" fill={ink} opacity="0.4"/>
+        <line x1="0" y1="170" x2="320" y2="170" stroke={bg} strokeWidth="1" opacity="0.5"/>
+        <line x1="0" y1="180" x2="320" y2="180" stroke={bg} strokeWidth="1" opacity="0.4"/>
+      </svg>
+    ),
+    "Milan": (
+      <svg {...common}>
+        <rect width="320" height="220" fill={bg}/>
+        {/* duomo - many spires */}
+        <rect x="80" y="120" width="160" height="60" fill={ink}/>
+        {[...Array(11)].map((_, i) => {
+          const x = 80 + i * 16;
+          const h = 30 + (i%3)*10;
+          return <polygon key={i} points={`${x+3},120 ${x+8},${120-h} ${x+13},120`} fill={ink}/>;
+        })}
+        <polygon points="150,120 160,70 170,120" fill={ink}/>
+        <polygon points="155,80 160,68 165,80" fill={accent}/>
+        <rect x="0" y="180" width="320" height="40" fill={ink} opacity="0.15"/>
+      </svg>
+    ),
+    "Florence": (
+      <svg {...common}>
+        <rect width="320" height="220" fill={bg}/>
+        <circle cx="270" cy="50" r="22" fill={accent} opacity="0.75"/>
+        {/* duomo dome */}
+        <rect x="100" y="120" width="100" height="50" fill={ink}/>
+        <path d="M100,120 Q150,60 200,120 Z" fill={accent}/>
+        <rect x="146" y="60" width="8" height="12" fill={ink}/>
+        {/* campanile */}
+        <rect x="210" y="80" width="22" height="90" fill={ink}/>
+        <rect x="216" y="92" width="4" height="10" fill={bg}/>
+        <rect x="222" y="92" width="4" height="10" fill={bg}/>
+        <rect x="216" y="112" width="4" height="10" fill={bg}/>
+        <rect x="222" y="112" width="4" height="10" fill={bg}/>
+        {/* cypress */}
+        <ellipse cx="50" cy="140" rx="10" ry="30" fill={ink} opacity="0.8"/>
+        <rect x="48" y="160" width="4" height="14" fill={ink}/>
+        <ellipse cx="80" cy="145" rx="8" ry="25" fill={ink} opacity="0.8"/>
+        <rect x="78" y="160" width="4" height="14" fill={ink}/>
+        <rect x="0" y="170" width="320" height="50" fill={ink} opacity="0.15"/>
+      </svg>
+    ),
+    "Rome": (
+      <svg {...common}>
+        <rect width="320" height="220" fill={bg}/>
+        <circle cx="50" cy="50" r="22" fill={accent} opacity="0.7"/>
+        {/* colosseum */}
+        <ellipse cx="160" cy="140" rx="100" ry="50" fill={ink} opacity="0.92"/>
+        <ellipse cx="160" cy="140" rx="100" ry="50" fill="none" stroke={bg} strokeWidth="1.5"/>
+        {[...Array(10)].map((_, i) => {
+          const x = 70 + i*20;
+          return <rect key={i} x={x} y="120" width="8" height="14" fill={bg} rx="3"/>;
+        })}
+        {[...Array(11)].map((_, i) => {
+          const x = 65 + i*18;
+          return <rect key={i} x={x} y="142" width="6" height="10" fill={bg} rx="2"/>;
+        })}
+        <rect x="62" y="138" width="196" height="2" fill={bg}/>
+        <rect x="0" y="180" width="320" height="40" fill={ink} opacity="0.15"/>
+      </svg>
+    ),
+    "Fira": (
+      <svg {...common}>
+        <rect width="320" height="220" fill={bg}/>
+        <circle cx="160" cy="80" r="40" fill={accent} opacity="0.85"/>
+        {/* sea */}
+        <rect x="0" y="140" width="320" height="80" fill={ink} opacity="0.45"/>
+        {/* cliff */}
+        <path d="M0,140 Q40,100 80,110 Q120,120 160,108 Q200,96 240,112 Q280,124 320,118 L320,140 Z" fill={bg}/>
+        {/* white cubic houses */}
+        {[20,50,80,110,140,170,200,230,260,290].map((x, i) => (
+          <g key={i}>
+            <rect x={x} y={108 - (i%3)*4} width="18" height="14" fill={bg} stroke={ink} strokeWidth="1"/>
+            {i%2===0 && <ellipse cx={x+9} cy={108 - (i%3)*4} rx="9" ry="4" fill={accent} opacity="0.8"/>}
+          </g>
+        ))}
+        <line x1="0" y1="160" x2="320" y2="160" stroke={bg} strokeWidth="1" opacity="0.5"/>
+        <line x1="0" y1="180" x2="320" y2="180" stroke={bg} strokeWidth="1" opacity="0.4"/>
+      </svg>
+    ),
+  };
+
+  // for combo / transition cities, use the first one
+  const fallbackKey = day.cities.find(c => scenes[c]) || "Amsterdam";
+  return scenes[key] || scenes[fallbackKey];
+}
+
+/* =========================================================================
+   SUB-COMPONENTS
+   ========================================================================= */
+
+function StatBlock({ label, value, suffix }) {
+  return (
+    <div className="flex flex-col">
+      <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-mute">{label}</span>
+      <span className="font-display text-2xl md:text-3xl text-ink leading-none mt-1">
+        {value}<span className="text-terracotta">{suffix}</span>
+      </span>
+    </div>
+  );
+}
+
+function TopBar({ activeDay }) {
+  return (
+    <header className="border-b border-cream-3 bg-cream sticky top-0 z-30">
+      <div className="max-w-[1400px] mx-auto px-5 md:px-8 py-3 md:py-4">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          {/* logo */}
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-ink rounded-full flex items-center justify-center">
+              <span className="text-cream font-display text-sm">€</span>
+            </div>
+            <div className="leading-tight">
+              <div className="font-display text-lg text-ink">Eurotrip 2026</div>
+              <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-mute">Jun 04 — Jun 16 · 12 days</div>
+            </div>
+          </div>
+
+          {/* stats */}
+          <div className="flex items-center gap-6 md:gap-9 ml-auto">
+            <StatBlock label="Countries" value={STATS.countries} />
+            <StatBlock label="Cities" value={STATS.cities} />
+            <StatBlock label="Transit Days" value={STATS.transitDays} />
+            <StatBlock label="Distance" value={STATS.totalKm.toLocaleString()} suffix=" km" />
+          </div>
+        </div>
+      </div>
+    </header>
+  );
+}
+
+function ProgressBar({ active, total }) {
+  const pct = (active / total) * 100;
+  return (
+    <div className="w-full">
+      <div className="flex items-center justify-between mb-2">
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-mute">Trip Progress</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-mute">
+          Day {active} / {total} · {Math.round(pct)}%
+        </span>
+      </div>
+      <div className="relative h-[6px] bg-cream-3 rounded-full overflow-hidden">
+        <div
+          className="absolute inset-y-0 left-0 progress-shimmer rounded-full transition-all duration-500"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <div className="flex justify-between mt-1.5 px-[2px]">
+        {Array.from({ length: total }).map((_, i) => (
+          <div key={i} className={`w-1 h-1 rounded-full transition-colors ${i < active ? 'bg-terracotta' : 'bg-cream-3'}`}/>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function DayPill({ day, isActive, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`day-pill w-full text-left rounded-lg border px-3 py-2.5 flex items-center gap-3 group ${
+        isActive
+          ? 'bg-ink text-cream border-ink shadow-sm'
+          : 'bg-transparent text-ink border-transparent hover:bg-cream-2 hover:border-cream-3'
+      }`}
+    >
+      <div className={`w-9 h-9 rounded-md flex items-center justify-center font-mono text-[11px] font-medium shrink-0 ${
+        isActive ? 'bg-cream text-ink' : 'bg-cream-2 text-ink-2 group-hover:bg-cream-3'
+      }`}>
+        D{String(day.day).padStart(2,'0')}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className={`font-display text-[15px] leading-tight truncate ${isActive ? 'text-cream' : 'text-ink'}`}>
+          {day.city}
+        </div>
+        <div className={`font-mono text-[10px] uppercase tracking-wider truncate ${isActive ? 'text-cream/60' : 'text-mute'}`}>
+          {day.dateLabel}
+        </div>
+      </div>
+      <div className="text-lg shrink-0">{day.glyph}</div>
+      {day.isCombo && (
+        <span className={`font-mono text-[8.5px] uppercase tracking-widest px-1.5 py-0.5 rounded ${
+          isActive ? 'bg-terracotta text-cream' : 'bg-terracotta/10 text-terracotta'
+        }`}>
+          Combo
+        </span>
+      )}
+    </button>
+  );
+}
+
+function Sidebar({ activeIdx, setActiveIdx }) {
+  return (
+    <aside className="desktop-only w-[300px] shrink-0 border-r border-cream-3 bg-cream-2/50 paper">
+      <div className="sticky top-[73px] h-[calc(100vh-73px)] overflow-y-auto scroll-thin">
+        <div className="px-4 pt-5 pb-3">
+          <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-mute mb-3">Itinerary</div>
+        </div>
+        <div className="px-3 pb-6 space-y-1">
+          {TRIP.map((day, i) => (
+            <DayPill key={day.day} day={day} isActive={i === activeIdx} onClick={() => setActiveIdx(i)} />
+          ))}
+        </div>
+        <div className="px-5 pb-8">
+          <div className="dotline text-cream-3 mb-3"></div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-mute">
+            End of itinerary · safe travels
+          </div>
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function MobileDayStrip({ activeIdx, setActiveIdx }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    if (!ref.current) return;
+    const el = ref.current.querySelector(`[data-i="${activeIdx}"]`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+  }, [activeIdx]);
+  return (
+    <div className="mobile-only border-b border-cream-3 bg-cream-2/50">
+      <div ref={ref} className="flex gap-2 overflow-x-auto px-4 py-3 scroll-thin">
+        {TRIP.map((d, i) => (
+          <button
+            key={d.day}
+            data-i={i}
+            onClick={() => setActiveIdx(i)}
+            className={`shrink-0 px-3 py-2 rounded-md flex items-center gap-2 ${
+              i === activeIdx ? 'bg-ink text-cream' : 'bg-cream-2 text-ink'
+            }`}
+          >
+            <span className="font-mono text-[10px] uppercase">D{String(d.day).padStart(2,'0')}</span>
+            <span className="font-display text-sm whitespace-nowrap">{d.cities[0]}</span>
+            {d.isCombo && <span className="text-[8px] font-mono uppercase tracking-wider px-1 rounded bg-terracotta/20 text-terracotta">Combo</span>}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HeroCard({ day }) {
+  const [bg] = day.palette;
+  return (
+    <div className="relative rounded-2xl overflow-hidden border border-cream-3 scaleup" style={{ background: bg }}>
+      <div className="absolute top-4 left-4 z-10 flex items-center gap-2">
+        <span className="font-mono text-[10px] uppercase tracking-[0.22em] bg-ink text-cream px-2 py-1 rounded">
+          Day {String(day.day).padStart(2,'0')}
+        </span>
+        {day.isCombo && (
+          <span className="font-mono text-[10px] uppercase tracking-[0.22em] bg-terracotta text-cream px-2 py-1 rounded">
+            Combo Day
+          </span>
+        )}
+      </div>
+      <div className="absolute top-4 right-4 z-10">
+        <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-ink-2 bg-cream/80 backdrop-blur px-2 py-1 rounded">
+          {day.dateLabel}
+        </span>
+      </div>
+      <div className="aspect-[16/9] w-full">
+        <CityIllustration day={day} />
+      </div>
+    </div>
+  );
+}
+
+function ComboSplit({ combo }) {
+  return (
+    <div className="grid grid-cols-2 gap-3 mt-4">
+      {combo.map((c, i) => (
+        <div key={i} className="border border-cream-3 rounded-xl p-4 bg-cream-2/40 flex items-center gap-3">
+          <div className="w-12 h-12 bg-cream-3 rounded-lg flex items-center justify-center text-2xl shrink-0">
+            {c.glyph}
+          </div>
+          <div className="min-w-0">
+            <div className="font-display text-lg text-ink leading-tight">{c.name}</div>
+            <div className="font-mono text-[10px] uppercase tracking-wider text-mute mt-0.5 truncate">{c.note}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TransitInfo({ day, nextDay }) {
+  if (!nextDay) {
+    return (
+      <div className="border border-cream-3 rounded-xl p-4 bg-cream-2/40">
+        <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-mute mb-1">Final stop</div>
+        <div className="font-display text-base text-ink">Trip complete · home sweet home</div>
+      </div>
+    );
+  }
+  const t = day.transit;
+  const modeIcon = { Train: '🚆', Eurostar: '🚆', Flight: '✈️', 'Day trip': '🚆', Rest: '🛌' }[t.mode] || '→';
+  return (
+    <div className="border border-cream-3 rounded-xl p-4 bg-cream-2/40">
+      <div className="flex items-center justify-between mb-2">
+        <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-mute">
+          Onward · to {nextDay.cities[0]}
+        </div>
+        <span className="font-mono text-[10px] uppercase tracking-wider text-terracotta border border-terracotta/30 px-1.5 py-0.5 rounded">
+          {t.mode}
+        </span>
+      </div>
+      <div className="flex items-center gap-3">
+        <div className="text-2xl">{modeIcon}</div>
+        <div className="flex-1 min-w-0">
+          <div className="font-display text-lg text-ink truncate">{t.line}</div>
+          <div className="font-mono text-xs text-mute mt-0.5">Duration · {t.duration}</div>
+        </div>
+        <div className="hidden sm:flex items-center gap-1 text-mute">
+          <span className="ticker-dash w-12 h-px"></span>
+          <span className="text-lg">→</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function HighlightItem({ text, idx }) {
+  return (
+    <li className="flex items-start gap-3 group">
+      <span className="font-mono text-[11px] text-terracotta mt-1 shrink-0 w-5">
+        {String(idx + 1).padStart(2,'0')}
+      </span>
+      <span className="text-ink-2 text-[15px] leading-relaxed group-hover:text-ink transition">
+        {text}
+      </span>
+    </li>
+  );
+}
+
+function MainPanel({ activeIdx, setActiveIdx }) {
+  const day = TRIP[activeIdx];
+  const nextDay = TRIP[activeIdx + 1];
+  const prevDay = TRIP[activeIdx - 1];
+
+  return (
+    <main className="flex-1 min-w-0">
+      <div className="max-w-[920px] mx-auto px-5 md:px-8 py-6 md:py-8">
+
+        {/* progress */}
+        <div className="mb-7">
+          <ProgressBar active={day.day} total={TRIP.length} />
+        </div>
+
+        {/* hero */}
+        <div key={`hero-${day.day}`} className="fade-key">
+          <HeroCard day={day} />
+        </div>
+
+        {/* title block */}
+        <div key={`title-${day.day}`} className="slide-in mt-6 flex items-end justify-between gap-6 flex-wrap">
+          <div className="min-w-0">
+            <div className="font-mono text-[11px] uppercase tracking-[0.22em] text-mute mb-2">
+              {day.country} · Stop {activeIdx + 1} of {TRIP.length}
+            </div>
+            <h1 className="font-display text-5xl md:text-6xl text-ink leading-[0.95] tracking-tight">
+              {day.city}
+            </h1>
+          </div>
+          <div className="text-5xl md:text-6xl shrink-0">{day.glyph}</div>
+        </div>
+
+        {/* combo split */}
+        {day.isCombo && day.combo && (
+          <div key={`combo-${day.day}`} className="slide-in">
+            <ComboSplit combo={day.combo} />
+          </div>
+        )}
+
+        {/* summary */}
+        <p key={`sum-${day.day}`} className="slide-in mt-6 text-ink-2 text-[17px] md:text-[18px] leading-[1.65] font-light max-w-[62ch]">
+          {day.summary}
+        </p>
+
+        {/* dotline */}
+        <div className="dotline text-cream-3 my-7"></div>
+
+        {/* highlights + transit grid */}
+        <div className="grid md:grid-cols-[1.4fr,1fr] gap-6">
+          <section key={`hl-${day.day}`} className="slide-in">
+            <div className="flex items-center gap-2 mb-4">
+              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-mute">Highlights</span>
+              <div className="flex-1 dotline text-cream-3"></div>
+            </div>
+            <ul className="space-y-3.5">
+              {day.highlights.map((h, i) => <HighlightItem key={i} idx={i} text={h} />)}
+            </ul>
+          </section>
+
+          <section key={`tr-${day.day}`} className="slide-in space-y-3">
+            <div className="flex items-center gap-2 mb-1">
+              <span className="font-mono text-[10px] uppercase tracking-[0.22em] text-mute">Transit</span>
+              <div className="flex-1 dotline text-cream-3"></div>
+            </div>
+            <TransitInfo day={day} nextDay={nextDay} />
+            {day.legKm > 0 && (
+              <div className="flex items-center justify-between px-4 py-3 border border-cream-3 rounded-xl bg-cream">
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-mute">Leg distance</span>
+                <span className="font-display text-base text-ink">{day.legKm.toLocaleString()} <span className="text-terracotta text-sm">km</span></span>
+              </div>
+            )}
+          </section>
+        </div>
+
+        {/* nav */}
+        <div className="mt-10 pt-6 border-t border-cream-3 flex items-center justify-between gap-4">
+          <button
+            onClick={() => prevDay && setActiveIdx(activeIdx - 1)}
+            disabled={!prevDay}
+            className={`group flex items-center gap-3 px-4 py-3 rounded-lg border transition ${
+              prevDay
+                ? 'border-cream-3 hover:border-ink hover:bg-cream-2 text-ink'
+                : 'border-cream-3 text-mute opacity-40 cursor-not-allowed'
+            }`}
+          >
+            <span className="text-lg group-hover:-translate-x-0.5 transition">←</span>
+            <div className="text-left leading-tight">
+              <div className="font-mono text-[9px] uppercase tracking-[0.22em] text-mute">Previous</div>
+              <div className="font-display text-sm">{prevDay ? prevDay.cities[0] : 'Start of trip'}</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => nextDay && setActiveIdx(activeIdx + 1)}
+            disabled={!nextDay}
+            className={`group flex items-center gap-3 px-4 py-3 rounded-lg border transition ${
+              nextDay
+                ? 'border-ink bg-ink text-cream hover:bg-ink-2'
+                : 'border-cream-3 text-mute opacity-40 cursor-not-allowed'
+            }`}
+            style={!nextDay ? {} : {}}
+          >
+            <div className="text-right leading-tight">
+              <div className={`font-mono text-[9px] uppercase tracking-[0.22em] ${nextDay ? 'text-cream/60' : 'text-mute'}`}>
+                Next stop
+              </div>
+              <div className="font-display text-sm">{nextDay ? nextDay.cities[0] : 'Trip complete'}</div>
+            </div>
+            <span className="text-lg group-hover:translate-x-0.5 transition">→</span>
+          </button>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+/* =========================================================================
+   APP
+   ========================================================================= */
+function App() {
+  const [activeIdx, setActiveIdx] = useState(0);
+
+  // keyboard nav
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'ArrowRight' && activeIdx < TRIP.length - 1) setActiveIdx(activeIdx + 1);
+      if (e.key === 'ArrowLeft' && activeIdx > 0) setActiveIdx(activeIdx - 1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activeIdx]);
+
+  return (
+    <div className="min-h-screen bg-cream paper">
+      <TopBar activeDay={TRIP[activeIdx]} />
+      <MobileDayStrip activeIdx={activeIdx} setActiveIdx={setActiveIdx} />
+      <div className="flex max-w-[1400px] mx-auto">
+        <Sidebar activeIdx={activeIdx} setActiveIdx={setActiveIdx} />
+        <MainPanel activeIdx={activeIdx} setActiveIdx={setActiveIdx} />
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>
