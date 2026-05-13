@@ -4,7 +4,7 @@
 
 ## Project overview
 
-A single-page travel itinerary for a 12-day Europe trip (Jun 4 – Jun 16, 2026). The page visualizes daily stops, transit between cities, highlights, and trip-level stats. It is a personal planning tool, not a public product — but it is built to magazine-grade visual quality.
+A single-page travel itinerary for a 16-day Europe trip (Aug 10 – Aug 25, 2026). The page visualizes daily stops, transit between cities, highlights, and trip-level stats. It is a personal planning tool, not a public product — but it is built to magazine-grade visual quality.
 
 - **Repo:** `mglngl/eurotrip` on GitHub
 - **Hosting:** Currently the raw repo; may be deployed to GitHub Pages later
